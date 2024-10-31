@@ -9,39 +9,89 @@ const navItems = [
       { 
         name: 'Tech Support',
         path: '/services/tech-support',
-        description: 'Expert remote and on-site tech support'
+        description: 'Remote and on-site technical assistance'
       },
       { 
-        name: 'Device Repair',
-        path: '/services/device-repair',
-        description: 'Professional repair for all devices'
+        name: 'Repairs',
+        path: '/services/repairs',
+        description: 'Professional device repair services'
       },
       { 
-        name: 'Setup & Installation',
+        name: 'Device Setup',
         path: '/services/setup',
-        description: 'Complete device setup services'
+        description: 'Complete device setup and configuration'
       },
       { 
-        name: 'Tech Consultation',
-        path: '/services/consultation',
-        description: 'Expert technology advice'
+        name: 'Consultations',
+        path: '/services/consultations',
+        description: 'Expert tech advice and planning'
+      },
+      { 
+        name: 'Other Services',
+        path: '/services/other',
+        description: 'Additional tech solutions'
       }
     ]
   },
   {
-    title: 'About',
-    path: '/about',
-    items: []
+    title: 'How It Works',
+    items: [
+      {
+        name: 'Our Process',
+        path: '/how-it-works/process',
+        description: 'Step-by-step guide to our services'
+      },
+      {
+        name: 'FAQs',
+        path: '/how-it-works/faqs',
+        description: 'Common questions answered'
+      },
+      {
+        name: 'Scheduling & Payments',
+        path: '/how-it-works/scheduling',
+        description: 'Book appointments and payment info'
+      }
+    ]
   },
   {
-    title: 'Pricing',
-    path: '/pricing',
-    items: []
+    title: 'Resources',
+    items: [
+      {
+        name: 'Tutorials',
+        path: '/resources/tutorials',
+        description: 'Step-by-step tech guides'
+      },
+      {
+        name: 'Troubleshooting',
+        path: '/resources/troubleshooting',
+        description: 'Common tech problem solutions'
+      },
+      {
+        name: 'Tech News',
+        path: '/resources/news',
+        description: 'Latest technology updates'
+      }
+    ]
   },
   {
     title: 'Contact',
-    path: '/contact',
-    items: []
+    items: [
+      {
+        name: 'Get in Touch',
+        path: '/contact',
+        description: 'Contact form and support'
+      },
+      {
+        name: 'Support Hours',
+        path: '/contact/hours',
+        description: 'Our availability and locations'
+      },
+      {
+        name: 'Emergency Support',
+        path: '/contact/emergency',
+        description: '24/7 urgent tech assistance'
+      }
+    ]
   }
 ];
 
