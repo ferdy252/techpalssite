@@ -1,9 +1,13 @@
-import { CheckCircle, ArrowRight, PhoneCall, Clock, Wrench } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { CheckCircle, ArrowRight, PhoneCall, Clock, Wrench, ArrowLeft, Info } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Tooltip } from '../components/Tooltip';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 
 const Process = () => {
-  // Track which cards are flipped
   const [flippedCards, setFlippedCards] = useState<boolean[]>([false, false, false, false]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showHints, setShowHints] = useState(true);
+  const [activeStep, setActiveStep] = useState(0);
 
   const handleFlipNext = (currentIndex: number) => {
     if (currentIndex < steps.length - 1) {
@@ -13,7 +17,7 @@ const Process = () => {
           newState[currentIndex + 1] = true;
           return newState;
         });
-      }, 100); // Add a slight delay before triggering the next flip
+      }, 100);
     }
   };
 
@@ -201,232 +205,249 @@ const Process = () => {
     `;
     document.head.appendChild(styleSheet);
     
-    // Return a cleanup function that doesn't return anything
     return () => {
       document.head.removeChild(styleSheet);
     };
   }, []);
 
-  // Add click handler for mobile
-  const handleCardClick = (index: number) => {
-    setFlippedCards((prev) => {
-      const newState = [...prev];
-      newState[index] = !newState[index];
-      return newState;
-    });
-  };
+  const handleCardClick = useCallback(async (index: number) => {
+    setIsLoading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      setFlippedCards(prev => {
+        const newState = [...prev];
+        newState[index] = !newState[index];
+        return newState;
+      });
+      setActiveStep(index);
+    } catch (error) {
+      console.error('Error flipping card:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-  // Add keyboard handling function
-  const handleKeyPress = (e: React.KeyboardEvent, index: number) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      handleCardClick(index);
+  const handleBackClick = (index: number) => {
+    handleCardClick(index);
+    if (index > 0) {
+      setActiveStep(index - 1);
     }
   };
 
+  const ProgressIndicator = () => (
+    <div className="flex justify-center gap-2 mb-8">
+      {steps.map((_, idx) => (
+        <div
+          key={idx}
+          className={`h-2 w-12 rounded-full transition-all duration-300 ${
+            idx === activeStep 
+              ? 'bg-blue-600 w-16' 
+              : idx < activeStep 
+                ? 'bg-blue-300' 
+                : 'bg-gray-200'
+          }`}
+        />
+      ))}
+    </div>
+  );
+
   return (
-    <section className="py-20 bg-white">
-      {/* Header with adjusted vertical spacing */}
-      <div className="container mx-auto px-4 mb-16 text-center">
-        <div className="inline-block px-4 py-1.5 mb-6 text-sm font-medium text-blue-600 bg-blue-50 rounded-full">
-          ⚡ SIMPLE PROCESS
+    <ErrorBoundary>
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4 mb-16 text-center">
+          <div className="inline-block px-4 py-1.5 mb-6 text-sm font-medium text-blue-600 bg-blue-50 rounded-full">
+            ⚡ SIMPLE PROCESS
+          </div>
+          <h2 className="text-4xl font-bold text-gray-900 mb-4 tracking-tight">
+            How TechPals Works
+          </h2>
+          <p className="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed">
+            Getting help with your tech problems is easy with our streamlined four-step process
+          </p>
         </div>
-        <h2 className="text-4xl font-bold text-gray-900 mb-4 tracking-tight">
-          How TechPals Works
-        </h2>
-        <p className="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed">
-          Getting help with your tech problems is easy with our streamlined four-step process
-        </p>
-      </div>
 
-      {/* Process Steps with increased gap between cards */}
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
-          {steps.map((step, index) => (
-            <div key={index} className="relative mx-auto w-full max-w-sm lg:max-w-[280px]">
-              {/* Card Container - increased height */}
-              <div 
-                onClick={() => handleCardClick(index)}
-                onKeyPress={(e) => handleKeyPress(e, index)}
-                role="button"
-                tabIndex={0}
-                aria-expanded={flippedCards[index]}
-                aria-label={`${step.title} - ${flippedCards[index] ? 'Click to see preview' : 'Click to see details'}`}
-                className="relative h-[450px] perspective-1500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-2xl"
-              >
-                {/* Card Content */}
+        <ProgressIndicator />
+
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-16">
+            {steps.map((step, index) => (
+              <div key={index} className="relative mx-auto w-full max-w-sm lg:max-w-[280px]">
                 <div 
-                  className={`absolute w-full h-full transform-style-preserve-3d flip-transition flip-delay-${index + 1} ${
-                    flippedCards[index] ? 'rotate-y-180' : ''
+                  onClick={() => !isLoading && handleCardClick(index)}
+                  className={`relative h-[450px] perspective-1500 ${
+                    isLoading ? 'cursor-wait opacity-70' : 'cursor-pointer'
                   }`}
-                  aria-hidden={!flippedCards[index]}
                 >
-                  {/* Front of card */}
-                  <div className="absolute w-full h-full backface-hidden">
-                    <div className={`card-gradient-${step.number} rounded-2xl p-8 
-                      shadow-[0_4px_20px_-2px_rgba(0,0,0,0.1)] 
-                      card-hover-shadow
-                      transition-all duration-300 ease-in-out h-full 
-                      border border-gray-100/40 backdrop-blur-sm
-                      hover:scale-[1.02] cursor-pointer
-                      flex flex-col`}
-                    >
-                      {/* Number Badge */}
-                      <div 
-                        className="absolute -top-3 -left-3 w-10 h-10 
-                        bg-gradient-to-br from-blue-500 to-blue-600
-                        text-white rounded-xl 
-                        flex items-center justify-center font-bold text-lg tracking-tight
-                        shadow-[0_4px_12px_-2px_rgba(59,130,246,0.5)]
-                        border border-white/20"
-                        aria-label={`Step ${step.number} of ${steps.length}`}
+                  <div 
+                    className={`absolute w-full h-full transform-style-preserve-3d flip-transition flip-delay-${index + 1} ${
+                      flippedCards[index] ? 'rotate-y-180' : ''
+                    }`}
+                    aria-hidden={!flippedCards[index]}
+                  >
+                    <div className="absolute w-full h-full backface-hidden">
+                      <div className={`card-gradient-${step.number} rounded-2xl p-8 
+                        shadow-[0_4px_20px_-2px_rgba(0,0,0,0.1)] 
+                        card-hover-shadow
+                        transition-all duration-300 ease-in-out h-full 
+                        border border-gray-100/40 backdrop-blur-sm
+                        hover:scale-[1.02] cursor-pointer
+                        flex flex-col`}
                       >
-                        {step.number}
-                      </div>
-
-                      {/* Icon with increased bottom margin */}
-                      <div 
-                        className={`w-20 h-20 icon-gradient-${
-                          step.number === '1' ? 'blue' : 
-                          step.number === '2' ? 'emerald' : 
-                          step.number === '3' ? 'violet' : 'blue-dark'
-                        } rounded-2xl 
-                        flex items-center justify-center mb-8 
-                        transform transition-all duration-300 
-                        hover:scale-110 hover:-translate-y-1
-                        icon-ring relative
-                        group`}
-                      >
-                        {/* Add subtle rotating background effect */}
-                        <div className="absolute inset-0 rounded-2xl bg-white/10 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        
-                        {/* Increase icon size and add transition */}
-                        <step.icon className="w-10 h-10 text-white transform transition-transform duration-300 group-hover:scale-110" 
-                          strokeWidth={2.5} // Make icons slightly bolder
-                        />
-                      </div>
-
-                      {/* Content with improved spacing */}
-                      <div className="space-y-6 flex-grow">
-                        <div className="space-y-2">
-                          <h3 className="text-2xl font-bold text-gray-900 tracking-tight leading-tight">
-                            {step.title}
-                          </h3>
-                          <p className="text-sm text-blue-600 font-medium">
-                            {step.tagline}
-                          </p>
-                        </div>
-                        
-                        <p className="text-gray-600 leading-relaxed">
-                          {step.preview}
-                        </p>
-                        
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleCardClick(index);
-                          }}
-                          className="mt-auto inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors group"
-                          aria-label={`Learn more about ${step.title}`}
+                        <div 
+                          className="absolute -top-3 -left-3 w-10 h-10 
+                          bg-gradient-to-br from-blue-500 to-blue-600
+                          text-white rounded-xl 
+                          flex items-center justify-center font-bold text-lg tracking-tight
+                          shadow-[0_4px_12px_-2px_rgba(59,130,246,0.5)]
+                          border border-white/20"
+                          aria-label={`Step ${step.number} of ${steps.length}`}
                         >
-                          Learn More
-                          <ArrowRight className="w-4 h-4 ml-1 transform transition-transform group-hover:translate-x-1" aria-hidden="true" />
-                        </button>
+                          {step.number}
+                        </div>
+
+                        <div 
+                          className={`w-20 h-20 icon-gradient-${
+                            step.number === '1' ? 'blue' : 
+                            step.number === '2' ? 'emerald' : 
+                            step.number === '3' ? 'violet' : 'blue-dark'
+                          } rounded-2xl 
+                          flex items-center justify-center mb-8 
+                          transform transition-all duration-300 
+                          hover:scale-110 hover:-translate-y-1
+                          icon-ring relative
+                          group`}
+                        >
+                          <div className="absolute inset-0 rounded-2xl bg-white/10 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          
+                          <step.icon className="w-10 h-10 text-white transform transition-transform duration-300 group-hover:scale-110" 
+                            strokeWidth={2.5}
+                          />
+                        </div>
+
+                        <div className="space-y-6 flex-grow">
+                          <div className="space-y-2">
+                            <h3 className="text-2xl font-bold text-gray-900 tracking-tight leading-tight">
+                              {step.title}
+                            </h3>
+                            <p className="text-sm text-blue-600 font-medium">
+                              {step.tagline}
+                            </p>
+                          </div>
+                          
+                          <p className="text-gray-600 leading-relaxed">
+                            {step.preview}
+                          </p>
+                          
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCardClick(index);
+                            }}
+                            className="mt-auto inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors group"
+                            aria-label={`Learn more about ${step.title}`}
+                          >
+                            Learn More
+                            <ArrowRight className="w-4 h-4 ml-1 transform transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Back of card with matching spacing */}
-                  <div className="absolute w-full h-full backface-hidden rotate-y-180">
-                    <div className={`card-gradient-${step.number} rounded-2xl p-8 
-                      shadow-[0_4px_20px_-2px_rgba(0,0,0,0.1)] 
-                      card-hover-shadow
-                      transition-all duration-300 ease-in-out h-full 
-                      border border-gray-100/40 backdrop-blur-sm
-                      hover:scale-[1.02] cursor-pointer
-                      flex flex-col`}
-                    >
-                      <div className="space-y-6">
-                        <div className="space-y-2">
-                          <h3 className="text-2xl font-bold text-gray-900 tracking-tight leading-tight">
-                            {step.title}
-                          </h3>
-                          <p className="text-sm font-medium bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">
-                            {step.tagline}
+                    <div className="absolute w-full h-full backface-hidden rotate-y-180">
+                      <div className={`card-gradient-${step.number} rounded-2xl p-8 
+                        shadow-[0_4px_20px_-2px_rgba(0,0,0,0.1)] 
+                        card-hover-shadow
+                        transition-all duration-300 ease-in-out h-full 
+                        border border-gray-100/40 backdrop-blur-sm
+                        hover:scale-[1.02] cursor-pointer
+                        flex flex-col relative`}
+                      >
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleBackClick(index);
+                          }}
+                          className="absolute top-4 right-4 w-8 h-8 rounded-full hover:bg-gray-100 
+                            flex items-center justify-center transition-colors duration-200
+                            text-gray-400 hover:text-gray-600"
+                          aria-label="Close details"
+                        >
+                          ×
+                        </button>
+
+                        <div className="space-y-6">
+                          <div className="space-y-2">
+                            <h3 className="text-2xl font-bold text-gray-900 tracking-tight leading-tight">
+                              {step.title}
+                            </h3>
+                            <p className="text-sm font-medium bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">
+                              {step.tagline}
+                            </p>
+                          </div>
+                          
+                          <p className="text-gray-700 leading-relaxed">
+                            {step.description}
                           </p>
+                          
+                          <ul className="space-y-4">
+                            {step.features.map((feature, idx) => (
+                              <li key={idx} className="flex items-center">
+                                <CheckCircle className="w-4 h-4 mr-3 text-blue-500 flex-shrink-0" />
+                                <span className="text-gray-600 text-sm leading-relaxed">
+                                  {feature}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
-                        
-                        <p className="text-gray-700 leading-relaxed">
-                          {step.description}
-                        </p>
-                        
-                        <ul className="space-y-4">
-                          {step.features.map((feature, idx) => (
-                            <li key={idx} className="flex items-center">
-                              <CheckCircle className="w-4 h-4 mr-3 text-blue-500 flex-shrink-0" />
-                              <span className="text-gray-600 text-sm leading-relaxed">
-                                {feature}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
                       </div>
                     </div>
                   </div>
                 </div>
+
+                {index < steps.length - 1 && (
+                  <Tooltip content={`Continue to ${steps[index + 1].title}`}>
+                    <button
+                      onClick={() => handleFlipNext(index)}
+                      className="hidden lg:block absolute -right-6 top-1/2 transform -translate-y-1/2 z-10"
+                      disabled={flippedCards[index + 1] || isLoading}
+                    >
+                      <div
+                        className={`w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center 
+                          transition-all duration-300 hover:scale-110 hover:bg-blue-700
+                          ${flippedCards[index + 1] ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                          shadow-lg hover:shadow-xl`}
+                      >
+                        <ArrowRight className="w-6 h-6 text-white" aria-hidden="true" />
+                      </div>
+                    </button>
+                  </Tooltip>
+                )}
               </div>
-
-              {/* Arrow button with increased spacing */}
-              {index < steps.length - 1 && (
-                <button
-                  onClick={() => handleFlipNext(index)}
-                  className="hidden lg:block absolute -right-10 top-1/2 transform -translate-y-1/2 translate-x-full z-10"
-                  disabled={flippedCards[index + 1]}
-                  aria-label={`Show details for next step: ${steps[index + 1].title}`}
-                  aria-disabled={flippedCards[index + 1]}
-                >
-                  <div
-                    className={`w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center 
-                      transition-all duration-300 hover:scale-110 hover:bg-blue-700
-                      ${flippedCards[index + 1] ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                      shadow-lg hover:shadow-xl`}
-                  >
-                    <ArrowRight className="w-6 h-6 text-white" aria-hidden="true" />
-                  </div>
-                </button>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* CTA Button */}
-      <div className="text-center mt-16">
-        <button 
-          className="group relative inline-flex items-center px-8 py-4 
-          cta-button text-white rounded-full font-medium
-          shadow-[0_8px_16px_-4px_rgba(59,130,246,0.5)]
-          hover:shadow-[0_12px_20px_-4px_rgba(59,130,246,0.6)]
-          transition-all duration-300 ease-in-out"
-          aria-label="Start your tech support journey"
-        >
-          <span className="relative z-10 flex items-center">
-            Start Your Tech Support Journey
-            <ArrowRight className="w-5 h-5 ml-2 transform transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
-          </span>
-          
-          {/* Animated background glow effect */}
-          <div className="absolute inset-0 -z-10 rounded-full bg-white/10 blur-xl 
-            opacity-0 group-hover:opacity-50 transition-opacity duration-300" 
-          />
-          
-          {/* Subtle pulse animation */}
-          <div className="absolute inset-0 -z-20 rounded-full bg-blue-500/20 
-            animate-pulse opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
-          />
-        </button>
-      </div>
-    </section>
+        {showHints && (
+          <div className="fixed bottom-8 right-8 bg-white p-4 rounded-lg shadow-lg flex items-center gap-3 animate-bounce">
+            <Info className="w-5 h-5 text-blue-500" />
+            <p className="text-sm text-gray-600">Click cards to see more details!</p>
+            <button 
+              onClick={() => setShowHints(false)}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              ×
+            </button>
+          </div>
+        )}
+
+        {isLoading && (
+          <div className="fixed inset-0 bg-black/5 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+          </div>
+        )}
+      </section>
+    </ErrorBoundary>
   );
 };
 
