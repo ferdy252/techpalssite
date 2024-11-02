@@ -1,5 +1,4 @@
-import React from 'react';
-import { ArrowRight, Star, Users, Heart, Shield, Clock, Headphones } from 'lucide-react';
+import { ArrowRight, Shield, Clock, Headphones } from 'lucide-react';
 
 const stats = [
   {

@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Monitor,
   Smartphone,
   Settings,
   MessageSquare,
   ArrowRight,
-  Shield,
-  Clock,
   Zap,
   CheckCircle
 } from 'lucide-react';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Laptop, Smartphone, Monitor, Wifi, Cloud, Lock, Zap, Server, Shield, Settings } from 'lucide-react';
 
 const floatingIcons = [Laptop, Smartphone, Monitor, Wifi, Cloud, Lock, Zap, Server, Shield, Settings];

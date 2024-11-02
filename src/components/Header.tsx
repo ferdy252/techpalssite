@@ -1,8 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { FC, useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Monitor, ChevronDown, Menu, X, ArrowRight } from 'lucide-react';
+import { Monitor, ChevronDown, ArrowRight } from 'lucide-react';
 
-const navItems = [
+// Add these interfaces at the top of the file, after the imports
+interface SubItem {
+  name: string;
+  path: string;
+  description: string;
+}
+
+interface NavItem {
+  title: string;
+  path?: string;  // Optional path for direct links
+  items: SubItem[];
+}
+
+const navItems: NavItem[] = [
   {
     title: 'Services',
     items: [
@@ -95,7 +108,7 @@ const navItems = [
   }
 ];
 
-const Header = () => {
+const Header: FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -267,22 +280,22 @@ const Header = () => {
         </div>
 
         {/* Mobile Navigation */}
-        <div className={`lg:hidden fixed inset-0 bg-white/90 backdrop-blur-lg transition-all duration-500 ${
+        <div className={`lg:hidden fixed inset-0 bg-white z-40 transition-all duration-500 ${
           isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}>
-          <div className={`absolute inset-x-0 top-20 p-4 transition-all duration-500 transform ${
+          <div className={`absolute inset-x-0 top-20 p-4 bg-white transition-all duration-500 transform ${
             isOpen ? 'translate-y-0 opacity-100' : '-translate-y-10 opacity-0'
           }`}>
             {navItems.map((item, index) => (
               <div 
                 key={item.title} 
-                className="py-2"
+                className="py-2 bg-white"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 {item.items.length > 0 ? (
                   <>
                     <button
-                      className="flex items-center justify-between w-full text-left py-2 text-gray-700"
+                      className="flex items-center justify-between w-full text-left py-2 text-gray-700 bg-white"
                       onClick={() => setActiveDropdown(activeDropdown === item.title ? null : item.title)}
                     >
                       <span className="text-lg font-medium">{item.title}</span>
@@ -291,8 +304,8 @@ const Header = () => {
                       }`} />
                     </button>
                     
-                    <div className={`pl-4 space-y-2 transition-all duration-300 ${
-                      activeDropdown === item.title ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'
+                    <div className={`pl-4 space-y-2 transition-all duration-300 bg-gray-50 rounded-lg ${
+                      activeDropdown === item.title ? 'max-h-[400px] opacity-100 p-4' : 'max-h-0 opacity-0 p-0'
                     } overflow-hidden`}>
                       {item.items.map((subItem) => (
                         <Link

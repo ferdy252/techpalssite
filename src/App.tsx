@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -14,6 +13,8 @@ import TechSupport from './pages/services/TechSupport';
 import DeviceRepair from './pages/services/DeviceRepair';
 import Setup from './pages/services/Setup';
 import Consultation from './pages/services/Consultation';
+
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   return (
@@ -40,6 +41,30 @@ function App() {
         </main>
         <Footer />
       </div>
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 5000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+          success: {
+            duration: 3000,
+            iconTheme: {
+              primary: '#4ade80',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            duration: 4000,
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
     </Router>
   );
 }

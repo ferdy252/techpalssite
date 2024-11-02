@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Star, Quote, ArrowRight, MessageCircle, ThumbsUp, Award, Heart, Shield, Clock } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Star, Quote, ArrowRight, MessageCircle, ThumbsUp, Heart, Shield, Clock } from 'lucide-react';
 
 const testimonials = [
   {
