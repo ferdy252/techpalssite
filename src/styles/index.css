@@ -1,0 +1,224 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Modern gradient colors with more saturation */
+    --gradient-color-1: #EEF2FF;  /* Indigo 50 */
+    --gradient-color-2: #F5F3FF;  /* Violet 50 */
+    --gradient-color-3: #FCE7F3;  /* Pink 100 */
+    --gradient-color-4: #DBEAFE;  /* Blue 100 */
+    --bg-grid-opacity: 0.07;
+    --bg-icon-opacity: 0.12;
+    --blur-strength: 120px;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply text-gray-900 antialiased m-0 p-0 relative overflow-x-hidden;
+    min-height: 100vh;
+    background: #ffffff;
+  }
+
+  /* Add this new gradient overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: -100px;
+    background: 
+      linear-gradient(
+        to bottom right,
+        rgba(99, 102, 241, 0.05),  /* Indigo */
+        rgba(168, 85, 247, 0.05),  /* Purple */
+        rgba(236, 72, 153, 0.05)   /* Pink */
+      );
+    filter: blur(100px);
+    z-index: -2;
+  }
+
+  #root {
+    @apply min-h-screen w-full bg-transparent;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+}
+
+@layer utilities {
+  .bg-gradient-animate {
+    background-image: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+  }
+
+  .glass {
+    @apply backdrop-blur-md bg-white/10 border border-white/20 shadow-lg;
+  }
+
+  .glass-dark {
+    @apply backdrop-blur-md bg-black/10 border border-white/10 shadow-lg;
+  }
+
+  .glass-hover {
+    @apply transition-all duration-300 hover:bg-white/20 hover:border-white/30;
+  }
+
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+
+  .bg-shimmer {
+    background: linear-gradient(
+      45deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.05) 50%,
+      transparent 100%
+    );
+    background-size: 200% 200%;
+    animation: shimmer 8s linear infinite;
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@layer components {
+  .base-gradient {
+    position: relative;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  /* Modern gradient blobs */
+  .base-gradient::before,
+  .base-gradient::after {
+    content: '';
+    position: absolute;
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(
+      circle,
+      var(--gradient-color-1) 0%,
+      var(--gradient-color-2) 25%,
+      var(--gradient-color-3) 50%,
+      var(--gradient-color-4) 75%,
+      transparent 100%
+    );
+    filter: blur(var(--blur-strength));
+    opacity: 0.7;
+    animation: blob-rotate 20s linear infinite;
+    z-index: -1;
+  }
+
+  .base-gradient::before {
+    top: -25%;
+    left: -25%;
+    animation-delay: -10s;
+  }
+
+  .base-gradient::after {
+    bottom: -25%;
+    right: -25%;
+  }
+
+  /* Add subtle noise texture */
+  .base-gradient::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
+    opacity: 0.015;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+}
+
+/* Animations */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes float-icon {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(50px, 50px) rotate(120deg); }
+  66% { transform: translate(-25px, 25px) rotate(240deg); }
+  100% { transform: translate(0, 0) rotate(360deg); }
+}
+
+@keyframes beam-move {
+  0% { 
+    opacity: 0;
+    transform: rotate(45deg) translateY(-100%) translateX(-100%);
+  }
+  20% { opacity: 0.5; }
+  80% { opacity: 0.5; }
+  100% { 
+    opacity: 0;
+    transform: rotate(45deg) translateY(100%) translateX(100%);
+  }
+}
+
+/* Add new animation for blob rotation */
+@keyframes blob-rotate {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.1);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes blob-slow {
+  0% {
+    transform: translate(0px, 0px) scale(1) rotate(0deg);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1) rotate(120deg);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9) rotate(240deg);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1) rotate(360deg);
+  }
+}

@@ -1,4 +1,5 @@
-import { FC, useState, useEffect, useRef } from 'react';
+import type { FC } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Monitor, ChevronDown, ArrowRight } from 'lucide-react';
 

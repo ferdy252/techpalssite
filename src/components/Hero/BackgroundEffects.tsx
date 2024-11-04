@@ -6,7 +6,7 @@ const BackgroundEffects = () => {
   return (
     <>
       {/* Base Background with Tech Pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-indigo-50 opacity-70">
+      <div className="absolute inset-0 opacity-70">
         {/* Circuit Board Pattern */}
         <div className="absolute inset-0" 
           style={{

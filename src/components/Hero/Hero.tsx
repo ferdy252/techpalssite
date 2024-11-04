@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import BackgroundEffects from './BackgroundEffects';
+import { useState, useEffect } from 'react';
 import TrustBanner from './TrustBanner';
 import MainHeading from './MainHeading';
 import Subheading from './Subheading';
@@ -38,10 +37,8 @@ const Hero = () => {
   }, []);
 
   return (
-    <div className="relative bg-gradient-to-br from-blue-50 via-white to-indigo-50 pt-24 pb-16 overflow-hidden">
-      <BackgroundEffects />
-
-      <div className="container mx-auto px-4 relative">
+    <div className="relative pt-24 pb-16">
+      <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-4xl mx-auto">
           <div className="text-center">
             <TrustBanner isVisible={isVisible} />

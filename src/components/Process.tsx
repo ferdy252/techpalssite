@@ -1,72 +1,102 @@
-import { CheckCircle, ArrowRight, PhoneCall, Clock, Wrench, ArrowLeft, Info } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
-import { Tooltip } from '../components/Tooltip';
+import { CheckCircle, ArrowRight, PhoneCall, Clock, Wrench } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ErrorBoundary } from '../components/ErrorBoundary';
+import { useNavigate } from 'react-router-dom';
+
+// Add custom error type
+type ProcessError = {
+  code: 'CARD_FLIP_ERROR' | 'STEP_UPDATE_ERROR';
+  message: string;
+};
+
+// Add new animation states and types
+type SlideDirection = 'up' | 'down' | 'none';
+type CardState = 'entering' | 'active' | 'exiting' | 'hidden';
 
 const Process = () => {
-  const [flippedCards, setFlippedCards] = useState<boolean[]>([false, false, false, false]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showHints, setShowHints] = useState(true);
-  const [activeStep, setActiveStep] = useState(0);
+  const navigate = useNavigate();
 
-  const handleFlipNext = (currentIndex: number) => {
-    if (currentIndex < steps.length - 1) {
-      setTimeout(() => {
-        setFlippedCards((prev) => {
-          const newState = [...prev];
-          newState[currentIndex + 1] = true;
-          return newState;
-        });
-      }, 100);
-    }
-  };
-
+  // Define steps first
   const steps = [
     {
       number: '1',
       icon: PhoneCall,
       title: 'Contact Us',
-      tagline: 'Start your support journey',
-      preview: 'Ready to get started? Learn how to reach us.',
+      tagline: 'Start Your Tech Journey',
+      preview: 'Get expert help in minutes - no complicated forms or long wait times.',
       description:
-        'Reach out through our form, phone, or chat. Describe your tech issue and we will get back to you quickly.',
-      features: ['24/7 Support Available', 'Multiple Contact Channels', 'Quick Response Time'],
+        'Reach out through our 24/7 support channels. Whether you prefer chat, phone, or email, our team is ready to help solve your tech problems quickly.',
+      features: [
+        'Instant Response Time',
+        'Multiple Contact Options',
+        'No Queue or Wait Times'
+      ],
       iconColor: 'bg-blue-500',
     },
     {
       number: '2',
       icon: Clock,
       title: 'Schedule Service',
-      tagline: 'Choose your preferred service time slot',
-      preview: 'Pick a time that works for you. We offer flexible scheduling including same-day service for urgent issues.',
+      tagline: 'Flexible Booking Options',
+      preview: 'Book a time that works for you, including same-day emergency appointments.',
       description:
-        'Pick a time that works for you. We offer flexible scheduling including same-day service for urgent issues.',
-      features: ['Same-Day Service', 'Flexible Hours', 'Weekend Availability'],
+        'Choose from our flexible scheduling options, including same-day service for urgent issues. We work around your schedule, not the other way around.',
+      features: [
+        'Same-Day Emergency Service',
+        '7-Day Availability',
+        'Evening Appointments'
+      ],
       iconColor: 'bg-emerald-500',
     },
     {
       number: '3',
       icon: Wrench,
-      title: 'Get Expert Help',
-      tagline: 'Our certified technicians will diagnose and fix your tech problems with clear communication throughout',
-      preview: 'Our certified technicians will diagnose and fix your tech problems with clear communication throughout.',
+      title: 'Expert Resolution',
+      tagline: 'Professional Tech Support',
+      preview: 'Experienced technicians solve your problems with clear communication.',
       description:
-        'Our certified technicians will diagnose and fix your tech problems with clear communication throughout.',
-      features: ['Certified Technicians', 'Clear Communication', 'Transparent Pricing'],
+        'Our certified technicians diagnose and fix your tech issues while keeping you informed every step of the way. No technical jargon - just clear solutions.',
+      features: [
+        'Certified Tech Experts',
+        'Clear Progress Updates',
+        'Guaranteed Solutions'
+      ],
       iconColor: 'bg-violet-500',
     },
     {
       number: '4',
       icon: CheckCircle,
-      title: 'Problem Solved',
-      tagline: 'Get back to using your technology with confidence',
-      preview: 'Get back to using your technology with confidence. We guarantee your satisfaction with our service.',
+      title: 'Back in Action',
+      tagline: 'Satisfaction Guaranteed',
+      preview: 'Get back to your digital life with confidence and peace of mind.',
       description:
-        'Get back to using your technology with confidence. We guarantee your satisfaction with our service.',
-      features: ['Satisfaction Guaranteed', '30-Day Warranty', 'Follow-up Support'],
+        'Walk away with working technology and the knowledge to prevent future issues. Every service includes a satisfaction guarantee and follow-up support.',
+      features: [
+        '30-Day Guarantee',
+        'Preventive Tips',
+        'Free Follow-up Support'
+      ],
       iconColor: 'bg-blue-500',
-    },
+    }
   ];
+
+  // Then declare state variables
+  const [isLoading] = useState(false);
+  const [activeStep, setActiveStep] = useState(0);
+  const [] = useState<ProcessError | null>(null);
+  const [, setDirection] = useState<'forward' | 'backward'>('forward');
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [slideDirection, setSlideDirection] = useState<SlideDirection>('none');
+  const [cardStates, setCardStates] = useState<CardState[]>(
+    Array(steps.length).fill('hidden')
+  );
+
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  // Add new animation states
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const [] = useState<'left' | 'right'>('right');
 
   useEffect(() => {
     const styleSheet = document.createElement('style');
@@ -202,6 +232,14 @@ const Process = () => {
       .cta-button:hover::before {
         opacity: 1;
       }
+
+      @keyframes fade-in {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in {
+        animation: fade-in 0.5s ease-out forwards;
+      }
     `;
     document.head.appendChild(styleSheet);
     
@@ -210,236 +248,281 @@ const Process = () => {
     };
   }, []);
 
-  const handleCardClick = useCallback(async (index: number) => {
-    setIsLoading(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 100));
-      setFlippedCards(prev => {
-        const newState = [...prev];
-        newState[index] = !newState[index];
-        return newState;
-      });
-      setActiveStep(index);
-    } catch (error) {
-      console.error('Error flipping card:', error);
-    } finally {
-      setIsLoading(false);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
     }
+
+    return () => observer.disconnect();
   }, []);
 
-  const handleBackClick = (index: number) => {
-    handleCardClick(index);
-    if (index > 0) {
-      setActiveStep(index - 1);
+  // Add initialization effect
+  useEffect(() => {
+    // Set initial card state
+    setCardStates(prev => {
+      const newStates = [...prev];
+      newStates[activeStep] = 'active';
+      return newStates;
+    });
+    
+    // Add visibility after mount
+    setTimeout(() => {
+      setIsVisible(true);
+    }, 100);
+  }, []);
+
+  // Add navigation handlers
+  const handleNext = useCallback(() => {
+    if (activeStep < steps.length - 1 && !isAnimating) {
+      setIsAnimating(true);
+      setDirection('forward');
+      setSlideDirection('up');
+      
+      setCardStates(prev => {
+        const newStates = [...prev];
+        newStates[activeStep] = 'exiting';
+        newStates[activeStep + 1] = 'entering';
+        return newStates;
+      });
+
+      setTimeout(() => {
+        setActiveStep(prev => prev + 1);
+        setCardStates(() => {
+          const newStates = Array(steps.length).fill('hidden');
+          newStates[activeStep + 1] = 'active';
+          return newStates;
+        });
+        setIsAnimating(false);
+      }, 500);
     }
+  }, [activeStep, steps.length, isAnimating]);
+
+  const handlePrev = useCallback(() => {
+    if (activeStep > 0 && !isAnimating) {
+      setIsAnimating(true);
+      setDirection('backward');
+      setSlideDirection('down');
+      
+      setCardStates(prev => {
+        const newStates = [...prev];
+        newStates[activeStep] = 'exiting';
+        newStates[activeStep - 1] = 'entering';
+        return newStates;
+      });
+
+      setTimeout(() => {
+        setActiveStep(prev => prev - 1);
+        setCardStates(() => {
+          const newStates = Array(steps.length).fill('hidden');
+          newStates[activeStep - 1] = 'active';
+          return newStates;
+        });
+        setIsAnimating(false);
+      }, 500);
+    }
+  }, [activeStep, isAnimating]);
+
+  // Update handler for CTA button
+  const handleGetStarted = () => {
+    navigate('/contact');
   };
 
-  const ProgressIndicator = () => (
-    <div className="flex justify-center gap-2 mb-8">
-      {steps.map((_, idx) => (
-        <div
-          key={idx}
-          className={`h-2 w-12 rounded-full transition-all duration-300 ${
-            idx === activeStep 
-              ? 'bg-blue-600 w-16' 
-              : idx < activeStep 
-                ? 'bg-blue-300' 
-                : 'bg-gray-200'
-          }`}
-        />
-      ))}
-    </div>
-  );
-
+  // Add navigation buttons
   return (
     <ErrorBoundary>
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4 mb-16 text-center">
-          <div className="inline-block px-4 py-1.5 mb-6 text-sm font-medium text-blue-600 bg-blue-50 rounded-full">
-            ⚡ SIMPLE PROCESS
+      <section ref={sectionRef} className="py-20 relative z-10">
+        <div className="container mx-auto px-4 relative text-center mb-24">
+          <div className={`transform transition-all duration-700 ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          }`}>
+            <div className="flex items-center justify-center mb-6">
+              <span className="inline-flex items-center px-5 py-2 rounded-full bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 font-semibold text-sm uppercase tracking-wider shadow-sm">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                Simple Process
+              </span>
+            </div>
+            <h2 className="text-5xl md:text-6xl font-bold mb-8 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent leading-tight">
+              How TechPals Works
+            </h2>
+            <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              Getting help with your tech problems is easy with our streamlined four-step process
+            </p>
           </div>
-          <h2 className="text-4xl font-bold text-gray-900 mb-4 tracking-tight">
-            How TechPals Works
-          </h2>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed">
-            Getting help with your tech problems is easy with our streamlined four-step process
-          </p>
         </div>
 
-        <ProgressIndicator />
+        <div className="flex justify-center gap-3 mb-16">
+          {steps.map((_, idx) => (
+            <div
+              key={idx}
+              className={`h-2.5 rounded-full transition-all duration-500 ease-out ${
+                idx === activeStep 
+                  ? 'w-24 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-500' 
+                  : idx < activeStep 
+                    ? 'w-16 bg-blue-200' 
+                    : 'w-16 bg-gray-200'
+              }`}
+            />
+          ))}
+        </div>
 
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-16">
+        <div className="container mx-auto px-6 relative">
+          <div className="max-w-3xl mx-auto relative h-[650px]">
+            {/* Cards */}
             {steps.map((step, index) => (
-              <div key={index} className="relative mx-auto w-full max-w-sm lg:max-w-[280px]">
-                <div 
-                  onClick={() => !isLoading && handleCardClick(index)}
-                  className={`relative h-[450px] perspective-1500 ${
-                    isLoading ? 'cursor-wait opacity-70' : 'cursor-pointer'
-                  }`}
-                >
-                  <div 
-                    className={`absolute w-full h-full transform-style-preserve-3d flip-transition flip-delay-${index + 1} ${
-                      flippedCards[index] ? 'rotate-y-180' : ''
-                    }`}
-                    aria-hidden={!flippedCards[index]}
-                  >
-                    <div className="absolute w-full h-full backface-hidden">
-                      <div className={`card-gradient-${step.number} rounded-2xl p-8 
-                        shadow-[0_4px_20px_-2px_rgba(0,0,0,0.1)] 
-                        card-hover-shadow
-                        transition-all duration-300 ease-in-out h-full 
-                        border border-gray-100/40 backdrop-blur-sm
-                        hover:scale-[1.02] cursor-pointer
-                        flex flex-col`}
-                      >
-                        <div 
-                          className="absolute -top-3 -left-3 w-10 h-10 
-                          bg-gradient-to-br from-blue-500 to-blue-600
-                          text-white rounded-xl 
-                          flex items-center justify-center font-bold text-lg tracking-tight
-                          shadow-[0_4px_12px_-2px_rgba(59,130,246,0.5)]
-                          border border-white/20"
-                          aria-label={`Step ${step.number} of ${steps.length}`}
-                        >
-                          {step.number}
-                        </div>
+              <div
+                key={index}
+                onMouseEnter={() => setHoverIndex(index)}
+                onMouseLeave={() => setHoverIndex(null)}
+                className={`
+                  absolute top-0 left-0 w-full
+                  ${getCardStateClasses(cardStates[index], slideDirection)}
+                `}
+                style={{
+                  zIndex: index === activeStep ? 10 : 0,
+                  transitionDelay: `${Math.abs(index - activeStep) * 75}ms`
+                }}
+              >
+                <div className={`
+                  bg-white/95 backdrop-blur-md rounded-2xl p-10
+                  shadow-[0_8px_30px_rgb(0,0,0,0.12)]
+                  border border-gray-100/50
+                  transform transition-all duration-500
+                  ${index === activeStep 
+                    ? 'translate-y-0 opacity-100 scale-100' 
+                    : 'translate-y-4 opacity-0 scale-[0.98]'
+                  }
+                  ${hoverIndex === index ? 'shadow-2xl scale-[1.02]' : ''}
+                  hover:shadow-2xl hover:scale-[1.02]
+                  motion-safe:animate-fade-in
+                `}>
+                  {/* Card Header with improved gradient */}
+                  <div className="flex items-center justify-between mb-8">
+                    <div className={`
+                      w-16 h-16 rounded-xl
+                      bg-gradient-to-br from-${step.number === '1' ? 'blue' : step.number === '2' ? 'emerald' : step.number === '3' ? 'violet' : 'blue'}-500 
+                      to-${step.number === '1' ? 'blue' : step.number === '2' ? 'emerald' : step.number === '3' ? 'violet' : 'blue'}-600
+                      flex items-center justify-center
+                      shadow-lg transform transition-transform duration-300
+                      ${hoverIndex === index ? 'scale-110 rotate-3' : ''}
+                      hover:scale-110 hover:rotate-3
+                      group
+                    `}>
+                      <step.icon className="w-8 h-8 text-white transition-transform duration-300 group-hover:scale-110" strokeWidth={2} />
+                    </div>
+                    
+                    <span className="text-sm font-medium text-gray-500 bg-gray-100/50 px-4 py-2 rounded-full">
+                      Step {parseInt(step.number)} of {steps.length}
+                    </span>
+                  </div>
 
-                        <div 
-                          className={`w-20 h-20 icon-gradient-${
-                            step.number === '1' ? 'blue' : 
-                            step.number === '2' ? 'emerald' : 
-                            step.number === '3' ? 'violet' : 'blue-dark'
-                          } rounded-2xl 
-                          flex items-center justify-center mb-8 
-                          transform transition-all duration-300 
-                          hover:scale-110 hover:-translate-y-1
-                          icon-ring relative
-                          group`}
-                        >
-                          <div className="absolute inset-0 rounded-2xl bg-white/10 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                          
-                          <step.icon className="w-10 h-10 text-white transform transition-transform duration-300 group-hover:scale-110" 
-                            strokeWidth={2.5}
-                          />
-                        </div>
-
-                        <div className="space-y-6 flex-grow">
-                          <div className="space-y-2">
-                            <h3 className="text-2xl font-bold text-gray-900 tracking-tight leading-tight">
-                              {step.title}
-                            </h3>
-                            <p className="text-sm text-blue-600 font-medium">
-                              {step.tagline}
-                            </p>
-                          </div>
-                          
-                          <p className="text-gray-600 leading-relaxed">
-                            {step.preview}
-                          </p>
-                          
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleCardClick(index);
-                            }}
-                            className="mt-auto inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors group"
-                            aria-label={`Learn more about ${step.title}`}
-                          >
-                            Learn More
-                            <ArrowRight className="w-4 h-4 ml-1 transform transition-transform group-hover:translate-x-1" aria-hidden="true" />
-                          </button>
-                        </div>
-                      </div>
+                  {/* Card Content with improved typography */}
+                  <div className="space-y-8">
+                    <div>
+                      <h3 className="text-3xl font-bold text-gray-900 mb-3">
+                        {step.title}
+                      </h3>
+                      <p className="text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                        {step.tagline}
+                      </p>
                     </div>
 
-                    <div className="absolute w-full h-full backface-hidden rotate-y-180">
-                      <div className={`card-gradient-${step.number} rounded-2xl p-8 
-                        shadow-[0_4px_20px_-2px_rgba(0,0,0,0.1)] 
-                        card-hover-shadow
-                        transition-all duration-300 ease-in-out h-full 
-                        border border-gray-100/40 backdrop-blur-sm
-                        hover:scale-[1.02] cursor-pointer
-                        flex flex-col relative`}
-                      >
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleBackClick(index);
-                          }}
-                          className="absolute top-4 right-4 w-8 h-8 rounded-full hover:bg-gray-100 
-                            flex items-center justify-center transition-colors duration-200
-                            text-gray-400 hover:text-gray-600"
-                          aria-label="Close details"
-                        >
-                          ×
-                        </button>
+                    <p className="text-gray-600 leading-relaxed text-lg">
+                      {step.description}
+                    </p>
 
-                        <div className="space-y-6">
-                          <div className="space-y-2">
-                            <h3 className="text-2xl font-bold text-gray-900 tracking-tight leading-tight">
-                              {step.title}
-                            </h3>
-                            <p className="text-sm font-medium bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">
-                              {step.tagline}
-                            </p>
-                          </div>
-                          
-                          <p className="text-gray-700 leading-relaxed">
-                            {step.description}
-                          </p>
-                          
-                          <ul className="space-y-4">
-                            {step.features.map((feature, idx) => (
-                              <li key={idx} className="flex items-center">
-                                <CheckCircle className="w-4 h-4 mr-3 text-blue-500 flex-shrink-0" />
-                                <span className="text-gray-600 text-sm leading-relaxed">
-                                  {feature}
-                                </span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
+                    <ul className="space-y-4">
+                      {step.features.map((feature, idx) => (
+                        <li key={idx} 
+                          className={`
+                            flex items-center text-gray-600 p-3 rounded-lg
+                            transition-all duration-300
+                            ${hoverIndex === index ? 'bg-gray-50/50' : ''}
+                          `}
+                        >
+                          <CheckCircle className="w-6 h-6 mr-4 text-blue-500 flex-shrink-0" />
+                          <span className="text-base">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
-
-                {index < steps.length - 1 && (
-                  <Tooltip content={`Continue to ${steps[index + 1].title}`}>
-                    <button
-                      onClick={() => handleFlipNext(index)}
-                      className="hidden lg:block absolute -right-6 top-1/2 transform -translate-y-1/2 z-10"
-                      disabled={flippedCards[index + 1] || isLoading}
-                    >
-                      <div
-                        className={`w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center 
-                          transition-all duration-300 hover:scale-110 hover:bg-blue-700
-                          ${flippedCards[index + 1] ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                          shadow-lg hover:shadow-xl`}
-                      >
-                        <ArrowRight className="w-6 h-6 text-white" aria-hidden="true" />
-                      </div>
-                    </button>
-                  </Tooltip>
-                )}
               </div>
             ))}
+
+            {/* Improved Navigation Buttons */}
+            <div className="absolute -left-24 -right-24 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none">
+              <button
+                onClick={handlePrev}
+                disabled={activeStep === 0 || isAnimating}
+                className={`
+                  transform transition-all duration-300 pointer-events-auto
+                  p-4 rounded-full bg-white/80 backdrop-blur-sm
+                  shadow-lg border border-gray-100/50
+                  ${activeStep === 0 
+                    ? 'opacity-50 cursor-not-allowed scale-90' 
+                    : 'hover:scale-110 hover:shadow-xl cursor-pointer'
+                  }
+                `}
+              >
+                <ArrowRight className="w-12 h-12 text-blue-600 rotate-180" />
+              </button>
+
+              <button
+                onClick={handleNext}
+                disabled={activeStep === steps.length - 1 || isAnimating}
+                className={`
+                  transform transition-all duration-300 pointer-events-auto
+                  p-4 rounded-full bg-white/80 backdrop-blur-sm
+                  shadow-lg border border-gray-100/50
+                  ${activeStep === steps.length - 1 
+                    ? 'opacity-50 cursor-not-allowed scale-90' 
+                    : 'hover:scale-110 hover:shadow-xl cursor-pointer'
+                  }
+                `}
+              >
+                <ArrowRight className="w-12 h-12 text-blue-600" />
+              </button>
+            </div>
           </div>
         </div>
 
-        {showHints && (
-          <div className="fixed bottom-8 right-8 bg-white p-4 rounded-lg shadow-lg flex items-center gap-3 animate-bounce">
-            <Info className="w-5 h-5 text-blue-500" />
-            <p className="text-sm text-gray-600">Click cards to see more details!</p>
-            <button 
-              onClick={() => setShowHints(false)}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              ×
-            </button>
-          </div>
-        )}
+        <div className={`text-center mt-16 transition-all duration-700 transform ${
+          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+        }`} style={{ transitionDelay: '800ms' }}>
+          <button
+            onClick={handleGetStarted}
+            aria-label="Get Started with TechPals"
+            className="
+              group relative inline-flex items-center 
+              px-8 py-4 rounded-full 
+              transition-all duration-300 transform 
+              hover:scale-105 overflow-hidden
+              shadow-xl shadow-blue-600/20
+              hover:shadow-2xl hover:shadow-blue-600/30
+              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+            "
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 bg-size-200 animate-gradient-x rounded-full"></div>
+            <div className="absolute inset-0 rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-300 blur-md bg-gradient-to-r from-blue-400 via-indigo-400 to-blue-400"></div>
+            <span className="relative z-10 text-white font-medium mr-2">Get Started Now</span>
+            <span className="relative z-10 transform transition-all duration-300 ease-out group-hover:translate-x-1">
+              <ArrowRight className="w-5 h-5 text-white" />
+              <ArrowRight className="w-5 h-5 text-white/30 absolute top-0 left-0 opacity-0 -translate-x-1 group-hover:translate-x-1 group-hover:opacity-100 transition-all duration-300 ease-out" />
+            </span>
+          </button>
+        </div>
 
         {isLoading && (
           <div className="fixed inset-0 bg-black/5 flex items-center justify-center">
@@ -449,6 +532,30 @@ const Process = () => {
       </section>
     </ErrorBoundary>
   );
+};
+
+// Helper function for card state classes
+const getCardStateClasses = (state: CardState, direction: SlideDirection) => {
+  const baseClasses = 'transform transition-all duration-700 ease-out';
+  
+  switch (state) {
+    case 'entering':
+      return `${baseClasses} ${
+        direction === 'up' 
+          ? 'translate-y-[60px] opacity-0 scale-[0.98]' 
+          : '-translate-y-[60px] opacity-0 scale-[0.98]'
+      }`;
+    case 'active':
+      return `${baseClasses} translate-y-0 opacity-100 scale-100`;
+    case 'exiting':
+      return `${baseClasses} ${
+        direction === 'up' 
+          ? '-translate-y-[60px] opacity-0 scale-[0.98]' 
+          : 'translate-y-[60px] opacity-0 scale-[0.98]'
+      }`;
+    case 'hidden':
+      return `${baseClasses} opacity-0 scale-95 pointer-events-none translate-y-0`;
+  }
 };
 
 export default Process;

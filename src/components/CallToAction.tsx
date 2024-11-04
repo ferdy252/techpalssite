@@ -20,8 +20,9 @@ const stats = [
 
 const CallToAction = () => {
   return (
-    <section className="py-20 bg-gradient-to-br from-blue-600 to-indigo-700 overflow-hidden">
-      <div className="container mx-auto px-4">
+    <section className="py-20 relative">
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-600/95 to-indigo-700/95"></div>
+      <div className="relative container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="text-white space-y-8 animate-fade-in">

@@ -87,19 +87,15 @@ const Testimonials = () => {
     return () => observer.disconnect();
   }, []);
 
+  const handleViewMoreReviews = () => {
+    window.location.href = '/reviews';
+  };
+
   return (
-    <section ref={sectionRef} className="py-24 relative overflow-hidden">
-      {/* Background Pattern */}
+    <section ref={sectionRef} className="py-24 relative">
+      {/* Update background to be more subtle */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-indigo-50"></div>
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(99, 102, 241, 0.05) 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
-        }}></div>
-        
-        {/* Animated Gradient Orbs */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-pulse-slow"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-200 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-50/30 to-transparent"></div>
       </div>
 
       <div className="container mx-auto px-4 relative">
@@ -257,11 +253,14 @@ const Testimonials = () => {
           ))}
         </div>
 
-        {/* CTA Button */}
+        {/* CTA Button - Updated with onClick handler */}
         <div className={`text-center mt-16 transition-all duration-700 transform ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
         }`} style={{ transitionDelay: '800ms' }}>
-          <button className="group relative inline-flex items-center px-8 py-4 rounded-full transition-all duration-300 transform hover:scale-105 overflow-hidden">
+          <button 
+            onClick={handleViewMoreReviews}
+            className="group relative inline-flex items-center px-8 py-4 rounded-full transition-all duration-300 transform hover:scale-105 overflow-hidden"
+          >
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 bg-size-200 animate-gradient-x rounded-full"></div>
             <div className="absolute inset-0 rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-300 blur-md bg-gradient-to-r from-blue-400 via-indigo-400 to-blue-400"></div>
             <span className="relative z-10 text-white font-medium mr-2">Read More Reviews</span>
