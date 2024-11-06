@@ -4,29 +4,60 @@ import { Laptop, Smartphone, Monitor, Wifi, Cloud, Lock, Zap, Server, Shield, Se
 const floatingIcons = [Laptop, Smartphone, Monitor, Wifi, Cloud, Lock, Zap, Server, Shield, Settings];
 
 const GlobalBackground = () => {
+  const [isMobile, setIsMobile] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [scrollPosition, setScrollPosition] = useState(0);
 
   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
     const handleScroll = () => {
-      setScrollPosition(window.scrollY);
+      if (!isMobile) {
+        setScrollPosition(window.scrollY);
+      }
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 2 - 1,
-        y: (e.clientY / window.innerHeight) * 2 - 1
-      });
+      if (!isMobile) {
+        setMousePosition({
+          x: (e.clientX / window.innerWidth) * 2 - 1,
+          y: (e.clientY / window.innerHeight) * 2 - 1
+        });
+      }
     };
 
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('mousemove', handleMouseMove);
+    
     return () => {
+      window.removeEventListener('resize', checkMobile);
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('mousemove', handleMouseMove);
     };
-  }, []);
+  }, [isMobile]);
 
+  if (isMobile) {
+    return (
+      // Simplified mobile version
+      <div className="fixed inset-0">
+        <div className="absolute inset-0 base-gradient opacity-50" />
+        <div 
+          className="absolute inset-0"
+          style={{
+            opacity: 0.05,
+            backgroundImage: `linear-gradient(to right, rgba(99, 102, 241, 0.1) 1px, transparent 1px)`,
+            backgroundSize: '50px 50px',
+          }}
+        />
+      </div>
+    );
+  }
+
+  // Original desktop version
   return (
     <>
       <div className="fixed inset-0 base-gradient overflow-hidden">

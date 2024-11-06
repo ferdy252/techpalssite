@@ -92,7 +92,7 @@ const Testimonials = () => {
   };
 
   return (
-    <section ref={sectionRef} className="py-24 relative">
+    <section ref={sectionRef} className="py-16 md:py-20 relative">
       {/* Update background to be more subtle */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-50/30 to-transparent"></div>

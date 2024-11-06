@@ -1,5 +1,5 @@
 import { CheckCircle, ArrowRight, PhoneCall, Clock, Wrench } from 'lucide-react';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, TouchEvent } from 'react';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { useNavigate } from 'react-router-dom';
 
@@ -97,6 +97,50 @@ const Process = () => {
   // Add new animation states
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const [] = useState<'left' | 'right'>('right');
+
+  const [, setIsMobile] = useState(false);
+
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  // Required distance between touchStart and touchEnd to be detected as a swipe
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      handleNext();
+    }
+    if (isRightSwipe) {
+      handlePrev();
+    }
+  };
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Disable complex animations on mobile
 
   useEffect(() => {
     const styleSheet = document.createElement('style');
@@ -340,45 +384,45 @@ const Process = () => {
   // Add navigation buttons
   return (
     <ErrorBoundary>
-      <section ref={sectionRef} className="py-20 relative z-10">
-        <div className="container mx-auto px-4 relative text-center mb-24">
+      <section ref={sectionRef} className="py-8 md:py-20 relative z-10" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
+        <div className="container mx-auto px-4 md:px-6 relative text-center mb-8 md:mb-16">
           <div className={`transform transition-all duration-700 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}>
-            <div className="flex items-center justify-center mb-6">
-              <span className="inline-flex items-center px-5 py-2 rounded-full bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 font-semibold text-sm uppercase tracking-wider shadow-sm">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center justify-center mb-4 md:mb-6">
+              <span className="inline-flex items-center px-3 md:px-5 py-1.5 md:py-2 rounded-full bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 font-semibold text-xs md:text-sm uppercase tracking-wider shadow-sm">
+                <svg className="w-4 h-4 md:w-5 md:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
                 Simple Process
               </span>
             </div>
-            <h2 className="text-5xl md:text-6xl font-bold mb-8 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent leading-tight">
+            <h2 className="text-3xl md:text-6xl font-bold mb-4 md:mb-8 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent leading-tight">
               How TechPals Works
             </h2>
-            <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               Getting help with your tech problems is easy with our streamlined four-step process
             </p>
           </div>
         </div>
 
-        <div className="flex justify-center gap-3 mb-16">
+        <div className="flex justify-center gap-2 md:gap-3 mb-6 md:mb-8 px-4">
           {steps.map((_, idx) => (
             <div
               key={idx}
-              className={`h-2.5 rounded-full transition-all duration-500 ease-out ${
+              className={`h-1.5 md:h-2.5 rounded-full transition-all duration-500 ease-out ${
                 idx === activeStep 
-                  ? 'w-24 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-500' 
+                  ? 'w-16 md:w-24 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-500' 
                   : idx < activeStep 
-                    ? 'w-16 bg-blue-200' 
-                    : 'w-16 bg-gray-200'
+                    ? 'w-8 md:w-16 bg-blue-200' 
+                    : 'w-8 md:w-16 bg-gray-200'
               }`}
             />
           ))}
         </div>
 
-        <div className="container mx-auto px-6 relative">
-          <div className="max-w-3xl mx-auto relative h-[650px]">
+        <div className="container mx-auto px-4 md:px-6 relative">
+          <div className="max-w-3xl mx-auto relative h-[500px] md:h-[600px]">
             {/* Cards */}
             {steps.map((step, index) => (
               <div
@@ -395,7 +439,7 @@ const Process = () => {
                 }}
               >
                 <div className={`
-                  bg-white/95 backdrop-blur-md rounded-2xl p-10
+                  bg-white/95 backdrop-blur-md rounded-xl md:rounded-2xl p-6 md:p-10
                   shadow-[0_8px_30px_rgb(0,0,0,0.12)]
                   border border-gray-100/50
                   transform transition-all duration-500
@@ -408,51 +452,49 @@ const Process = () => {
                   motion-safe:animate-fade-in
                 `}>
                   {/* Card Header with improved gradient */}
-                  <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center justify-between mb-6 md:mb-8">
                     <div className={`
-                      w-16 h-16 rounded-xl
+                      w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-xl
                       bg-gradient-to-br from-${step.number === '1' ? 'blue' : step.number === '2' ? 'emerald' : step.number === '3' ? 'violet' : 'blue'}-500 
                       to-${step.number === '1' ? 'blue' : step.number === '2' ? 'emerald' : step.number === '3' ? 'violet' : 'blue'}-600
                       flex items-center justify-center
                       shadow-lg transform transition-transform duration-300
                       ${hoverIndex === index ? 'scale-110 rotate-3' : ''}
-                      hover:scale-110 hover:rotate-3
-                      group
                     `}>
-                      <step.icon className="w-8 h-8 text-white transition-transform duration-300 group-hover:scale-110" strokeWidth={2} />
+                      <step.icon className="w-6 h-6 md:w-8 md:h-8 text-white" strokeWidth={2} />
                     </div>
                     
-                    <span className="text-sm font-medium text-gray-500 bg-gray-100/50 px-4 py-2 rounded-full">
+                    <span className="text-xs md:text-sm font-medium text-gray-500 bg-gray-100/50 px-3 md:px-4 py-1.5 md:py-2 rounded-full">
                       Step {parseInt(step.number)} of {steps.length}
                     </span>
                   </div>
 
                   {/* Card Content with improved typography */}
-                  <div className="space-y-8">
+                  <div className="space-y-6 md:space-y-8">
                     <div>
-                      <h3 className="text-3xl font-bold text-gray-900 mb-3">
+                      <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2 md:mb-3">
                         {step.title}
                       </h3>
-                      <p className="text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                      <p className="text-xs md:text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                         {step.tagline}
                       </p>
                     </div>
 
-                    <p className="text-gray-600 leading-relaxed text-lg">
+                    <p className="text-base md:text-lg text-gray-600 leading-relaxed">
                       {step.description}
                     </p>
 
-                    <ul className="space-y-4">
+                    <ul className="space-y-3 md:space-y-4">
                       {step.features.map((feature, idx) => (
                         <li key={idx} 
                           className={`
-                            flex items-center text-gray-600 p-3 rounded-lg
+                            flex items-center text-gray-600 p-2 md:p-3 rounded-lg
                             transition-all duration-300
                             ${hoverIndex === index ? 'bg-gray-50/50' : ''}
                           `}
                         >
-                          <CheckCircle className="w-6 h-6 mr-4 text-blue-500 flex-shrink-0" />
-                          <span className="text-base">{feature}</span>
+                          <CheckCircle className="w-5 h-5 md:w-6 md:h-6 mr-3 md:mr-4 text-blue-500 flex-shrink-0" />
+                          <span className="text-sm md:text-base">{feature}</span>
                         </li>
                       ))}
                     </ul>
@@ -461,8 +503,8 @@ const Process = () => {
               </div>
             ))}
 
-            {/* Improved Navigation Buttons */}
-            <div className="absolute -left-24 -right-24 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none">
+            {/* Hide arrow buttons on mobile, use swipe gestures instead */}
+            <div className="hidden md:flex absolute -left-24 -right-24 top-1/2 -translate-y-1/2 justify-between pointer-events-none">
               <button
                 onClick={handlePrev}
                 disabled={activeStep === 0 || isAnimating}
@@ -498,7 +540,7 @@ const Process = () => {
           </div>
         </div>
 
-        <div className={`text-center mt-16 transition-all duration-700 transform ${
+        <div className={`text-center mt-6 md:mt-8 transition-all duration-700 transform ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
         }`} style={{ transitionDelay: '800ms' }}>
           <button
@@ -506,12 +548,13 @@ const Process = () => {
             aria-label="Get Started with TechPals"
             className="
               group relative inline-flex items-center 
-              px-8 py-4 rounded-full 
+              px-6 md:px-8 py-3 md:py-4 rounded-full 
               transition-all duration-300 transform 
               hover:scale-105 overflow-hidden
               shadow-xl shadow-blue-600/20
               hover:shadow-2xl hover:shadow-blue-600/30
               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+              text-sm md:text-base
             "
           >
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 bg-size-200 animate-gradient-x rounded-full"></div>

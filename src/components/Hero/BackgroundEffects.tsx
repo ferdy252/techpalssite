@@ -1,12 +1,66 @@
+import { useCallback, useEffect, useState } from 'react';
+import throttle from 'lodash/throttle';
 import { Laptop, Smartphone, Monitor, Wifi, Cloud, Lock, Zap, Server, Shield, Settings } from 'lucide-react';
+import { usePerformance } from '../../context/PerformanceContext';
 
 const floatingIcons = [Laptop, Smartphone, Monitor, Wifi, Cloud, Lock, Zap, Server, Shield, Settings];
 
-const BackgroundEffects = () => {
+export const BackgroundEffects = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
+  const { isLowPerfDevice } = usePerformance();
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Throttle the scroll handler to run at most once every 16ms (roughly 60fps)
+  const handleScroll = useCallback(
+    throttle(() => {
+      setScrollY(window.scrollY);
+    }, 16),
+    []
+  );
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
+
+  if (isLowPerfDevice) {
+    return (
+      <div className="fixed inset-0 -z-10">
+        {/* Simplified static background or reduced animations */}
+      </div>
+    );
+  }
+
+  if (isMobile) {
+    return (
+      // Simplified mobile version with minimal effects
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-50 to-indigo-50" />
+      </div>
+    );
+  }
+
+  // Original desktop version
   return (
     <>
       {/* Base Background with Tech Pattern */}
-      <div className="absolute inset-0 opacity-70">
+      <div 
+        className="fixed inset-0 -z-10"
+        style={{ 
+          willChange: 'transform',
+          transform: `translateY(${scrollY * 0.5}px)`
+        }}
+      >
         {/* Circuit Board Pattern */}
         <div className="absolute inset-0" 
           style={{
@@ -97,5 +151,3 @@ const BackgroundEffects = () => {
     </>
   );
 };
-
-export default BackgroundEffects;

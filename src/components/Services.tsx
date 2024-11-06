@@ -93,7 +93,7 @@ const Services = () => {
   ];
 
   return (
-    <section ref={sectionRef} className="py-24 relative z-10">
+    <section ref={sectionRef} className="py-16 md:py-20 relative z-10">
       <div className="container mx-auto px-4">
         <div className={`text-center transform transition-all duration-700 ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'

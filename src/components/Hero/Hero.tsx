@@ -37,7 +37,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <div className="relative pt-24 pb-16">
+    <div className="relative pt-24 pb-8 md:pb-12">
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-4xl mx-auto">
           <div className="text-center">
