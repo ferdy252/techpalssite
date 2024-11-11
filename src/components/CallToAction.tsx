@@ -1,4 +1,5 @@
 import { ArrowRight, Shield, Clock, Headphones } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const stats = [
   {
@@ -19,6 +20,16 @@ const stats = [
 ];
 
 const CallToAction = () => {
+  const navigate = useNavigate();
+
+  const handleStartNow = () => {
+    navigate('/services'); // or whatever path leads to your services page
+  };
+
+  const handleChatWithUs = () => {
+    navigate('/contact'); // or whatever path leads to your contact/chat page
+  };
+
   return (
     <section className="py-20 relative">
       <div className="absolute inset-0 bg-gradient-to-br from-blue-600/95 to-indigo-700/95"></div>
@@ -36,11 +47,17 @@ const CallToAction = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <button className="group bg-white text-blue-600 px-8 py-4 rounded-full hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center text-lg font-semibold">
+                <button 
+                  onClick={handleStartNow}
+                  className="group bg-white text-blue-600 px-8 py-4 rounded-full hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center text-lg font-semibold"
+                >
                   Start Now
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </button>
-                <button className="group border-2 border-white text-white px-8 py-4 rounded-full hover:bg-white/10 transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center text-lg font-semibold">
+                <button 
+                  onClick={handleChatWithUs}
+                  className="group border-2 border-white text-white px-8 py-4 rounded-full hover:bg-white/10 transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center text-lg font-semibold"
+                >
                   Chat with Us
                   <ArrowRight className="ml-2 h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                 </button>

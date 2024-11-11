@@ -2,6 +2,7 @@ import { CheckCircle, ArrowRight, PhoneCall, Clock, Wrench } from 'lucide-react'
 import { useState, useEffect, useCallback, useRef, TouchEvent } from 'react';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Add custom error type
 type ProcessError = {
@@ -32,6 +33,7 @@ const Process = () => {
         'No Queue or Wait Times'
       ],
       iconColor: 'bg-blue-500',
+      image: '/images/contact-support.webp',
     },
     {
       number: '2',
@@ -47,6 +49,7 @@ const Process = () => {
         'Evening Appointments'
       ],
       iconColor: 'bg-emerald-500',
+      image: '/images/schedule-service.webp',
     },
     {
       number: '3',
@@ -62,6 +65,7 @@ const Process = () => {
         'Guaranteed Solutions'
       ],
       iconColor: 'bg-violet-500',
+      image: '/images/expert-resolution.webp',
     },
     {
       number: '4',
@@ -77,6 +81,7 @@ const Process = () => {
         'Free Follow-up Support'
       ],
       iconColor: 'bg-blue-500',
+      image: '/images/back-in-action.webp',
     }
   ];
 
@@ -84,7 +89,7 @@ const Process = () => {
   const [isLoading] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [] = useState<ProcessError | null>(null);
-  const [, setDirection] = useState<'forward' | 'backward'>('forward');
+  const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
   const [isAnimating, setIsAnimating] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [slideDirection, setSlideDirection] = useState<SlideDirection>('none');
@@ -284,6 +289,44 @@ const Process = () => {
       .animate-fade-in {
         animation: fade-in 0.5s ease-out forwards;
       }
+
+      /* Add new image hover effects */
+      .image-hover-zoom {
+        transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .image-hover-zoom:hover {
+        transform: scale(1.05);
+      }
+
+      /* Add smooth gradient overlays */
+      .image-overlay {
+        background: linear-gradient(
+          to right,
+          rgba(255, 255, 255, 0.1),
+          rgba(255, 255, 255, 0.05)
+        );
+      }
+
+      /* Add card content animations */
+      .card-content-enter {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      .card-content-enter-active {
+        opacity: 1;
+        transform: translateY(0);
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* Enhanced card shadows */
+      .enhanced-shadow {
+        box-shadow: 
+          0 0 0 1px rgba(0, 0, 0, 0.03),
+          0 2px 4px rgba(0, 0, 0, 0.05),
+          0 12px 24px rgba(0, 0, 0, 0.05);
+      }
     `;
     document.head.appendChild(styleSheet);
     
@@ -381,6 +424,15 @@ const Process = () => {
     navigate('/contact');
   };
 
+  // Define mouse event handlers
+  const handleMouseEnter = useCallback((index: number) => {
+    setHoverIndex(index);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setHoverIndex(null);
+  }, []);
+
   // Add navigation buttons
   return (
     <ErrorBoundary>
@@ -422,85 +474,177 @@ const Process = () => {
         </div>
 
         <div className="container mx-auto px-4 md:px-6 relative">
-          <div className="max-w-3xl mx-auto relative h-[500px] md:h-[600px]">
+          <div className="max-w-5xl mx-auto relative h-[600px] md:h-[700px]">
             {/* Cards */}
             {steps.map((step, index) => (
-              <div
-                key={index}
-                onMouseEnter={() => setHoverIndex(index)}
-                onMouseLeave={() => setHoverIndex(null)}
-                className={`
-                  absolute top-0 left-0 w-full
-                  ${getCardStateClasses(cardStates[index], slideDirection)}
-                `}
-                style={{
-                  zIndex: index === activeStep ? 10 : 0,
-                  transitionDelay: `${Math.abs(index - activeStep) * 75}ms`
-                }}
-              >
-                <div className={`
-                  bg-white/95 backdrop-blur-md rounded-xl md:rounded-2xl p-6 md:p-10
-                  shadow-[0_8px_30px_rgb(0,0,0,0.12)]
-                  border border-gray-100/50
-                  transform transition-all duration-500
-                  ${index === activeStep 
-                    ? 'translate-y-0 opacity-100 scale-100' 
-                    : 'translate-y-4 opacity-0 scale-[0.98]'
-                  }
-                  ${hoverIndex === index ? 'shadow-2xl scale-[1.02]' : ''}
-                  hover:shadow-2xl hover:scale-[1.02]
-                  motion-safe:animate-fade-in
-                `}>
-                  {/* Card Header with improved gradient */}
-                  <div className="flex items-center justify-between mb-6 md:mb-8">
-                    <div className={`
-                      w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-xl
-                      bg-gradient-to-br from-${step.number === '1' ? 'blue' : step.number === '2' ? 'emerald' : step.number === '3' ? 'violet' : 'blue'}-500 
-                      to-${step.number === '1' ? 'blue' : step.number === '2' ? 'emerald' : step.number === '3' ? 'violet' : 'blue'}-600
-                      flex items-center justify-center
-                      shadow-lg transform transition-transform duration-300
-                      ${hoverIndex === index ? 'scale-110 rotate-3' : ''}
-                    `}>
-                      <step.icon className="w-6 h-6 md:w-8 md:h-8 text-white" strokeWidth={2} />
+              <AnimatePresence mode="wait" key={index}>
+                {cardStates[index] !== 'hidden' && (
+                  <motion.div
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    variants={{
+                      initial: { 
+                        opacity: 0, 
+                        y: direction === 'forward' ? 50 : -50,
+                        scale: 0.95
+                      },
+                      animate: { 
+                        opacity: 1, 
+                        y: 0,
+                        scale: 1,
+                        transition: { duration: 0.5, ease: 'easeOut' }
+                      },
+                      exit: { 
+                        opacity: 0, 
+                        y: direction === 'forward' ? -50 : 50,
+                        scale: 0.95,
+                        transition: { duration: 0.3, ease: 'easeIn' }
+                      }
+                    }}
+                    className={`
+                      absolute top-0 left-0 w-full
+                      ${getCardStateClasses(cardStates[index], slideDirection)}
+                    `}
+                    style={{
+                      zIndex: index === activeStep ? 10 : 0,
+                    }}
+                    onMouseEnter={() => handleMouseEnter(index)}
+                    onMouseLeave={handleMouseLeave}
+                  >
+                    <div className="group relative">
+                      {/* Add a subtle floating animation to the card */}
+                      <motion.div
+                        animate={{ y: [0, -5, 0] }}
+                        transition={{ 
+                          duration: 5,
+                          repeat: Infinity,
+                          repeatType: "reverse",
+                          ease: "easeInOut"
+                        }}
+                        className={`
+                          bg-white/95 backdrop-blur-md rounded-xl md:rounded-2xl overflow-hidden
+                          shadow-[0_8px_30px_rgb(0,0,0,0.12)]
+                          border border-gray-100/50
+                          transform transition-all duration-500
+                          ${hoverIndex === index ? 'shadow-2xl scale-[1.02]' : ''}
+                          hover:shadow-2xl hover:scale-[1.02]
+                        `}
+                      >
+                        <div className="flex flex-col md:flex-row">
+                          {/* Enhanced Image Section */}
+                          <div className="md:w-1/2 relative overflow-hidden group">
+                            <motion.div 
+                              whileHover={{ scale: 1.05 }}
+                              transition={{ duration: 0.4 }}
+                              className="aspect-[4/3] md:aspect-auto md:h-full"
+                            >
+                              <img
+                                src={step.image}
+                                alt={step.title}
+                                className="w-full h-full object-cover object-center"
+                                loading="lazy"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent 
+                                opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
+                              />
+                            </motion.div>
+                            
+                            {/* Add a subtle overlay effect on hover */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 
+                              opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
+                            />
+                          </div>
+
+                          {/* Enhanced Content Section */}
+                          <div className="md:w-1/2 p-8 md:p-12 relative">
+                            {/* Add decorative background elements */}
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 
+                              rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl pointer-events-none" 
+                            />
+                            
+                            {/* Card Header with improved animations */}
+                            <motion.div 
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.2 }}
+                              className="flex items-center justify-between mb-6 md:mb-8"
+                            >
+                              <div className={`
+                                w-14 h-14 md:w-20 md:h-20 rounded-lg md:rounded-xl
+                                bg-gradient-to-br from-${step.number === '1' ? 'blue' : step.number === '2' ? 'emerald' : step.number === '3' ? 'violet' : 'blue'}-500 
+                                to-${step.number === '1' ? 'blue' : step.number === '2' ? 'emerald' : step.number === '3' ? 'violet' : 'blue'}-600
+                                flex items-center justify-center
+                                shadow-lg transform transition-transform duration-300
+                                ${hoverIndex === index ? 'scale-110 rotate-3' : ''}
+                              `}>
+                                <step.icon className="w-7 h-7 md:w-10 md:h-10 text-white" strokeWidth={2} />
+                              </div>
+                              
+                              <span className="text-sm md:text-base font-medium text-gray-500 bg-gray-100/50 px-4 md:px-5 py-2 md:py-2.5 rounded-full">
+                                Step {parseInt(step.number)} of {steps.length}
+                              </span>
+                            </motion.div>
+
+                            {/* Staggered animation for content sections */}
+                            <motion.div 
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: 0.3 }}
+                              className="space-y-6 md:space-y-8"
+                            >
+                              <div>
+                                <h3 className="text-2xl md:text-4xl font-bold text-gray-900 mb-2 md:mb-3">
+                                  {step.title}
+                                </h3>
+                                <p className="text-sm md:text-base font-medium bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                                  {step.tagline}
+                                </p>
+                              </div>
+
+                              <p className="text-base md:text-xl text-gray-600 leading-relaxed">
+                                {step.description}
+                              </p>
+                            </motion.div>
+
+                            {/* Enhanced feature list with staggered animations */}
+                            <motion.ul 
+                              initial="hidden"
+                              animate="visible"
+                              variants={{
+                                visible: {
+                                  transition: {
+                                    staggerChildren: 0.1
+                                  }
+                                }
+                              }}
+                              className="space-y-4 md:space-y-5 mt-8"
+                            >
+                              {step.features.map((feature, idx) => (
+                                <motion.li
+                                  key={idx}
+                                  variants={{
+                                    hidden: { opacity: 0, x: -20 },
+                                    visible: { opacity: 1, x: 0 }
+                                  }}
+                                  className={`
+                                    flex items-center text-gray-600 p-3 md:p-4 rounded-lg
+                                    transition-all duration-300 hover:bg-gray-50/80
+                                    ${hoverIndex === index ? 'bg-gray-50/50' : ''}
+                                  `}
+                                >
+                                  <CheckCircle className="w-6 h-6 md:w-7 md:h-7 mr-4 md:mr-5 text-blue-500 flex-shrink-0" />
+                                  <span className="text-base md:text-lg">{feature}</span>
+                                </motion.li>
+                              ))}
+                            </motion.ul>
+                          </div>
+                        </div>
+                      </motion.div>
                     </div>
-                    
-                    <span className="text-xs md:text-sm font-medium text-gray-500 bg-gray-100/50 px-3 md:px-4 py-1.5 md:py-2 rounded-full">
-                      Step {parseInt(step.number)} of {steps.length}
-                    </span>
-                  </div>
-
-                  {/* Card Content with improved typography */}
-                  <div className="space-y-6 md:space-y-8">
-                    <div>
-                      <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2 md:mb-3">
-                        {step.title}
-                      </h3>
-                      <p className="text-xs md:text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                        {step.tagline}
-                      </p>
-                    </div>
-
-                    <p className="text-base md:text-lg text-gray-600 leading-relaxed">
-                      {step.description}
-                    </p>
-
-                    <ul className="space-y-3 md:space-y-4">
-                      {step.features.map((feature, idx) => (
-                        <li key={idx} 
-                          className={`
-                            flex items-center text-gray-600 p-2 md:p-3 rounded-lg
-                            transition-all duration-300
-                            ${hoverIndex === index ? 'bg-gray-50/50' : ''}
-                          `}
-                        >
-                          <CheckCircle className="w-5 h-5 md:w-6 md:h-6 mr-3 md:mr-4 text-blue-500 flex-shrink-0" />
-                          <span className="text-sm md:text-base">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             ))}
 
             {/* Hide arrow buttons on mobile, use swipe gestures instead */}

@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { Monitor, Smartphone, Settings, ClipboardList, CheckCircle, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const Services = () => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
-  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+  const [, setHoveredCard] = useState<number | null>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -24,10 +25,34 @@ const Services = () => {
     return () => observer.disconnect();
   }, []);
 
-  // Add stagger effect for cards
-  const getStaggerDelay = (index: number) => `${index * 100}ms`;
+  // Animation variants for cards
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: i * 0.1,
+        duration: 0.5,
+        ease: [0.645, 0.045, 0.355, 1.000]
+      }
+    })
+  };
 
-  // Define the TypeScript interface first
+  // Feature item animation variants
+  const featureVariants = {
+    hidden: { opacity: 0, x: -10 },
+    visible: (i: number) => ({
+      opacity: 1,
+      x: 0,
+      transition: {
+        delay: i * 0.1,
+        duration: 0.3,
+        ease: "easeOut"
+      }
+    })
+  };
+
   interface Service {
     title: string;
     icon: React.ElementType;
@@ -93,245 +118,203 @@ const Services = () => {
   ];
 
   return (
-    <section ref={sectionRef} className="py-16 md:py-20 relative z-10">
+    <section ref={sectionRef} className="relative pt-20 lg:pt-28 pb-16 md:pb-24 overflow-hidden">
       <div className="container mx-auto px-4">
-        <div className={`text-center transform transition-all duration-700 ${
-          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-        }`}>
-          <div className="flex items-center justify-center mb-4">
-            <span className="inline-flex items-center px-4 py-1 rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-600 font-semibold text-sm uppercase tracking-wider">
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isVisible ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="text-center relative mb-20"
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={isVisible ? { scale: 1, opacity: 1 } : {}}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="inline-flex items-center px-6 py-2 rounded-full bg-gradient-to-r from-blue-50 to-indigo-50 mb-8 group hover:scale-105 transition-transform duration-300"
+          >
+            <span className="relative bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent font-semibold text-sm tracking-wider uppercase">
               Our Services
+              <span className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-blue-600/40 to-indigo-600/40 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
             </span>
+          </motion.div>
+
+          <div className="relative">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={isVisible ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6"
+            >
+              <span className="relative inline-block">
+                <span className="relative z-10 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 bg-clip-text text-transparent">
+                  Making Technology
+                </span>
+                <span className="absolute bottom-0 left-0 w-full h-3 bg-blue-100/50 -rotate-1" />
+              </span>{' '}
+              <span className="relative inline-block">
+                <span className="relative z-10 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                  Easy For You
+                </span>
+                <span className="absolute bottom-0 left-0 w-full h-3 bg-indigo-100/50 rotate-1" />
+              </span>
+            </motion.h2>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={isVisible ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed"
+            >
+              Simple solutions for all your tech needs. We handle the complexity, so you don't have to.
+            </motion.p>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent text-center">
-            Professional Tech Services
-          </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto text-center">
-            Expert solutions for all your technology needs
-          </p>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-20">
           {services.map((service, index) => (
-            <div
+            <motion.div
               key={index}
+              custom={index}
+              initial="hidden"
+              animate={isVisible ? "visible" : "hidden"}
+              variants={cardVariants}
+              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+              className={`
+                group relative 
+                bg-white/90 backdrop-blur-xl
+                p-8 rounded-3xl
+                border border-gray-100/50
+                shadow-lg hover:shadow-2xl
+                transition-all duration-500
+                hover:border-transparent
+                hover:bg-gradient-to-b hover:from-white hover:to-gray-50/90
+                transform-gpu
+                hover:-translate-y-2
+              `}
               onMouseEnter={() => setHoveredCard(index)}
               onMouseLeave={() => setHoveredCard(null)}
-              className={`
-                group bg-white p-8 rounded-xl
-                shadow-lg hover:shadow-2xl
-                transform transition-all duration-700 ease-out
-                hover:scale-[1.02] hover:-translate-y-2
-                ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
-                hover:bg-gradient-to-b hover:from-white hover:to-gray-50/50
-                relative overflow-hidden
-                flex flex-col
-                border border-gray-100 hover:border-transparent
-              `}
-              style={{ transitionDelay: getStaggerDelay(index) }}
             >
-              <div className={`
-                relative
-                bg-gradient-to-br ${service.gradient}
-                w-16 h-16 rounded-xl 
-                flex items-center justify-center mb-6
-                transform transition-all duration-500
-                group-hover:scale-110 group-hover:rotate-3
-                group-hover:shadow-lg
-                overflow-hidden
-                animate-float
-                before:absolute before:inset-0 
-                before:bg-white/10 before:opacity-0 
-                before:group-hover:opacity-100
-                before:transition-opacity before:duration-300
-              `}>
-                <div className="
-                  absolute inset-0 
-                  bg-gradient-to-r from-white/0 via-white/20 to-white/0
-                  translate-x-[-200%] group-hover:translate-x-[200%]
-                  transition-transform duration-1000
-                "/>
-                <service.icon className={`
-                  w-8 h-8 ${service.iconColor}
-                  transform transition-all duration-500
-                  group-hover:scale-110 group-hover:rotate-6
-                `} />
-              </div>
+              {/* Service icon and title section */}
+              <div className="relative z-10">
+                <motion.div
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  className={`
+                    bg-gradient-to-br ${service.gradient}
+                    w-16 h-16 rounded-xl
+                    flex items-center justify-center mb-6
+                    shadow-lg
+                  `}
+                >
+                  <service.icon className={`w-8 h-8 ${service.iconColor}`} />
+                </motion.div>
 
-              <h3 className="
-                text-xl font-semibold mb-4
-                transform transition-all duration-300
-                group-hover:translate-x-1
-              ">
-                <span className="
-                  relative 
-                  bg-gradient-to-r from-gray-900 to-gray-700
-                  bg-clip-text text-transparent
-                  inline-block
-                ">
-                  {service.title}
-                  <span className="
-                    absolute bottom-0 left-0 w-0 h-0.5
-                    bg-gradient-to-r ${service.gradient}
-                    transition-all duration-300 group-hover:w-full
-                    opacity-60
-                  "/>
-                </span>
-              </h3>
+                <h3 className="text-xl font-semibold mb-6">
+                  <span className="bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                    {service.title}
+                  </span>
+                </h3>
 
-              <ul className="space-y-3 relative z-10 mb-6">
-                {service.features.map((feature, idx) => (
-                  <li
-                    key={idx}
-                    className={`
-                      flex items-center text-gray-600
-                      p-3 rounded-lg
-                      transition-all duration-300
-                      transform
-                      hover:bg-gray-50/80 hover:translate-x-2
-                      hover:shadow-sm
-                      group/item
-                      ${hoveredCard === index ? 'translate-x-1' : ''}
-                      backdrop-blur-sm
-                    `}
-                    style={{ transitionDelay: `${idx * 50}ms` }}
-                  >
-                    <feature.icon className={`
-                      w-5 h-5 mr-3
-                      transition-all duration-300
-                      group-hover/item:scale-110
-                      group-hover/item:rotate-6
-                      ${service.gradient.includes('blue') 
-                        ? 'text-blue-500 group-hover/item:text-blue-600' 
-                        : service.gradient.includes('purple')
-                          ? 'text-purple-500 group-hover/item:text-purple-600'
-                          : 'text-indigo-500 group-hover/item:text-indigo-600'
-                      }
-                    `} />
-                    <span className="
-                      transition-all duration-300 
-                      group-hover/item:text-gray-900
-                      relative
-                      after:absolute after:bottom-0 after:left-0 
-                      after:w-0 after:h-px 
-                      after:bg-gray-200
-                      after:transition-all after:duration-300
-                      group-hover/item:after:w-full
-                    ">
-                      {feature.text}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+                {/* Features list */}
+                <ul className="space-y-3 mb-6">
+                  {service.features.map((feature, idx) => (
+                    <motion.li
+                      key={idx}
+                      custom={idx}
+                      variants={featureVariants}
+                      className={`
+                        flex items-center p-3 rounded-xl
+                        transition-all duration-300
+                        hover:bg-white/80
+                        group/item
+                        backdrop-blur-sm
+                        border border-transparent
+                        hover:border-gray-100/50
+                        hover:shadow-sm
+                        transform-gpu
+                        hover:translate-x-1
+                      `}
+                    >
+                      <feature.icon className={`
+                        w-5 h-5 mr-3
+                        transition-colors duration-300
+                        ${service.gradient.includes('blue') 
+                          ? 'text-blue-500' 
+                          : service.gradient.includes('purple')
+                            ? 'text-purple-500'
+                            : 'text-indigo-500'
+                        }
+                      `} />
+                      <span className="text-gray-600 group-hover/item:text-gray-900">
+                        {feature.text}
+                      </span>
+                    </motion.li>
+                  ))}
+                </ul>
 
-              <div className="mt-auto pt-4 relative z-10">
-                <a
+                {/* Call to action link */}
+                <motion.a
                   href={service.path}
+                  whileHover={{ x: 5 }}
                   className="
-                    inline-flex items-center
+                    inline-flex items-center 
+                    px-4 py-2 rounded-lg
                     text-gray-600 hover:text-gray-900
-                    transform transition-all duration-300
+                    hover:bg-gray-50/80
+                    transition-all duration-300
                     group/link
-                    relative
-                    overflow-hidden
                   "
                 >
-                  <span className="
-                    relative
-                    font-medium
-                    after:absolute after:bottom-0 after:left-0
-                    after:w-0 after:h-px
-                    after:bg-gradient-to-r ${service.gradient}
-                    after:transition-all after:duration-300
-                    group-hover/link:after:w-full
-                  ">
-                    Explore {service.title}
+                  <span className="font-medium relative">
+                    Learn more
+                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 transform scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300" />
                   </span>
-                  <ArrowRight className="
-                    w-4 h-4 ml-2
-                    transform transition-all duration-300
-                    group-hover/link:translate-x-1
-                    opacity-60 group-hover/link:opacity-100
-                  " />
-                </a>
+                  <ArrowRight className="w-4 h-4 ml-2 transition-transform duration-300 group-hover/link:translate-x-1" />
+                </motion.a>
               </div>
 
+              {/* Background gradient effect */}
               <div className={`
                 absolute -right-12 -bottom-12
                 w-40 h-40
                 bg-gradient-to-br ${service.gradient}
-                rounded-full
-                opacity-0 group-hover:opacity-5
+                rounded-full opacity-0 group-hover:opacity-10
                 transform scale-0 group-hover:scale-100
                 transition-all duration-700
                 blur-2xl
               `}/>
-            </div>
+            </motion.div>
           ))}
         </div>
 
-        <div className={`
-          text-center mt-16
-          transform transition-all duration-700
-          ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
-        `}
-          style={{ transitionDelay: '400ms' }}
+        {/* View all services button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isVisible ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.8, duration: 0.5 }}
+          className="text-center mt-16"
         >
-          <a
+          <motion.a
             href="/services"
-            aria-label="View All Services"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             className="
-              group relative inline-flex items-center 
-              px-8 py-4 rounded-full 
-              transition-all duration-500 
-              hover:scale-105 overflow-hidden
-              shadow-xl shadow-blue-600/20
-              hover:shadow-2xl hover:shadow-blue-600/30
-              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-              animate-shimmer
+              inline-flex items-center px-8 py-4
+              bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600
+              text-white font-medium rounded-full
+              shadow-xl shadow-blue-500/20
+              hover:shadow-2xl hover:shadow-blue-500/30
+              transition-all duration-300
+              relative overflow-hidden
+              group
             "
           >
-            <div className="
-              absolute inset-0 
-              bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 
-              bg-[length:200%_100%] animate-gradient-x rounded-full
-            "></div>
-            <div className="
-              absolute inset-0 rounded-full 
-              opacity-50 group-hover:opacity-100 
-              transition-opacity duration-300 
-              blur-lg bg-gradient-to-r from-blue-400 via-indigo-400 to-blue-400
-            "></div>
-            <span className="
-              relative z-10 text-white font-medium mr-2
-              transform transition-all duration-300
-              group-hover:translate-x-0.5
-            ">
+            <span className="relative z-10 flex items-center">
               View All Services
+              <ArrowRight className="w-5 h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
             </span>
-            <span className="
-              relative z-10 transform transition-all duration-300 
-              ease-out group-hover:translate-x-1
-              flex items-center
-            ">
-              <ArrowRight className="
-                w-5 h-5 text-white
-                transition-transform duration-300
-                group-hover:scale-110
-              " />
-              <ArrowRight className="
-                w-5 h-5 text-white/30 
-                absolute top-0 left-0 
-                opacity-0 -translate-x-1 
-                group-hover:translate-x-1 group-hover:opacity-100 
-                transition-all duration-300 ease-out
-              " />
-            </span>
-          </a>
-        </div>
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </motion.a>
+        </motion.div>
       </div>
     </section>
   );

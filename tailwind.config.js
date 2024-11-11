@@ -33,6 +33,14 @@ module.exports = {
             transform: 'translateY(-5px)',
           },
         },
+        shimmer: {
+          '100%': {
+            transform: 'translateX(100%)',
+          },
+        },
+      },
+      backgroundSize: {
+        'size-200': '200% 200%',
       },
     },
   },

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Star, Quote, ArrowRight, MessageCircle, ThumbsUp, Heart, Shield, Clock } from 'lucide-react';
+import { Star, ArrowRight, MessageCircle, ThumbsUp, Shield, Clock } from 'lucide-react';
 
 const testimonials = [
   {
@@ -40,29 +40,7 @@ const testimonials = [
   }
 ];
 
-const stats = [
-  { 
-    icon: Star,
-    label: 'Average Rating',
-    value: '4.9/5',
-    color: 'from-yellow-400 to-orange-400',
-    description: 'Based on 2,500+ reviews'
-  },
-  {
-    icon: Heart,
-    label: 'Satisfaction Rate',
-    value: '98%',
-    color: 'from-pink-500 to-rose-500',
-    description: 'Of our happy customers'
-  },
-  {
-    icon: Shield,
-    label: 'Happy Clients',
-    value: '10,000+',
-    color: 'from-blue-500 to-indigo-500',
-    description: 'And growing every day'
-  }
-];
+const shimmer = `before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/60 before:to-transparent`;
 
 const Testimonials = () => {
   const [activeTestimonial, setActiveTestimonial] = useState<number | null>(null);
@@ -92,26 +70,30 @@ const Testimonials = () => {
   };
 
   return (
-    <section ref={sectionRef} className="py-16 md:py-20 relative">
-      {/* Update background to be more subtle */}
+    <section ref={sectionRef} className="py-16 md:py-24 relative overflow-hidden">
+      {/* Enhanced background with subtle patterns */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-50/30 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-50/40 to-transparent"></div>
+        <div className="absolute inset-0 opacity-[0.015]" style={{ 
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        }}></div>
       </div>
 
       <div className="container mx-auto px-4 relative">
-        {/* Header */}
-        <div className="text-center mb-16">
+        {/* Enhanced header with animated underline */}
+        <div className="text-center mb-20">
           <div className={`transform transition-all duration-700 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}>
             <div className="flex items-center justify-center mb-4">
-              <span className="inline-flex items-center px-4 py-1 rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-600 font-semibold text-sm uppercase tracking-wider">
+              <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-100/80 to-indigo-100/80 text-blue-600 font-semibold text-sm uppercase tracking-wider backdrop-blur-sm">
                 <MessageCircle className="w-4 h-4 mr-2" />
                 Client Stories
               </span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent relative inline-block">
               What Our Clients Say
+              <span className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600/0 via-blue-600/50 to-indigo-600/0 transform scale-x-0 transition-transform duration-700 group-hover:scale-x-100"></span>
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Real experiences from real customers who trust TechPals
@@ -119,37 +101,7 @@ const Testimonials = () => {
           </div>
         </div>
 
-        {/* Stats Bar */}
-        <div className={`max-w-4xl mx-auto mb-16 grid grid-cols-1 md:grid-cols-3 gap-8 transition-all duration-700 ${
-          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-        }`} style={{ transitionDelay: '200ms' }}>
-          {stats.map((stat, index) => (
-            <div 
-              key={index} 
-              className="relative group bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-            >
-              {/* Gradient Background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              
-              {/* Content */}
-              <div className="relative z-10">
-                <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} text-white mb-4 transform group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                  <stat.icon className="w-6 h-6" />
-                </div>
-                <div className="text-3xl font-bold text-gray-900 mb-1 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent group-hover:from-blue-600 group-hover:to-indigo-600 transition-colors duration-300">
-                  {stat.value}
-                </div>
-                <div className="text-sm font-medium text-gray-600 mb-1">{stat.label}</div>
-                <div className="text-xs text-gray-500">{stat.description}</div>
-              </div>
-
-              {/* Decorative Corner */}
-              <div className="absolute top-0 right-0 w-24 h-24 transform translate-x-12 -translate-y-12 rotate-45 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg blur-xl"></div>
-            </div>
-          ))}
-        </div>
-
-        {/* Testimonials Grid */}
+        {/* Enhanced testimonial cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {testimonials.map((testimonial, index) => (
             <div
@@ -161,16 +113,11 @@ const Testimonials = () => {
               onMouseEnter={() => setActiveTestimonial(index)}
               onMouseLeave={() => setActiveTestimonial(null)}
             >
-              <div className={`relative bg-white rounded-2xl p-6 h-full transition-all duration-500 ${
+              <div className={`relative bg-white/90 backdrop-blur-sm rounded-2xl p-6 h-full transition-all duration-500 overflow-hidden ${shimmer} ${
                 activeTestimonial === index 
                   ? 'shadow-xl scale-105 ring-2 ring-offset-2 ring-blue-400' 
                   : 'shadow-md hover:shadow-lg hover:-translate-y-1'
               }`}>
-                {/* Quote Icon */}
-                <div className="absolute -top-4 -left-4 w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
-                  <Quote className="w-4 h-4 text-white" />
-                </div>
-
                 {/* Content */}
                 <div className="relative z-10">
                   {/* Service Tag & Date */}
@@ -253,8 +200,8 @@ const Testimonials = () => {
           ))}
         </div>
 
-        {/* CTA Button - Updated with onClick handler */}
-        <div className={`text-center mt-16 transition-all duration-700 transform ${
+        {/* Enhanced CTA button */}
+        <div className={`text-center mt-20 transition-all duration-700 transform ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
         }`} style={{ transitionDelay: '800ms' }}>
           <button 
@@ -262,7 +209,7 @@ const Testimonials = () => {
             className="group relative inline-flex items-center px-8 py-4 rounded-full transition-all duration-300 transform hover:scale-105 overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 bg-size-200 animate-gradient-x rounded-full"></div>
-            <div className="absolute inset-0 rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-300 blur-md bg-gradient-to-r from-blue-400 via-indigo-400 to-blue-400"></div>
+            <div className="absolute inset-0 rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-300 blur-lg bg-gradient-to-r from-blue-400 via-indigo-400 to-blue-400"></div>
             <span className="relative z-10 text-white font-medium mr-2">Read More Reviews</span>
             <span className="relative z-10 transform transition-all duration-300 ease-out group-hover:translate-x-1">
               <ArrowRight className="w-5 h-5 text-white" />
